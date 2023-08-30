@@ -1,7 +1,47 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const convertButton = document.getElementById('convertButton');
+    const convertCSVButton = document.getElementById('convertCSVButton');
+    const convertJSONButton = document.getElementById('convertJSONButton');
 
-    convertButton.addEventListener('click', () => {
+    convertCSVButton.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.csv';
+        
+        input.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    try {
+                        Papa.parse(e.target.result, {
+                            complete: function(results) {
+                                const jsonData = results.data;
+                                const jsonString = JSON.stringify(jsonData, null, 2);
+                                const jsonBlob = new Blob([jsonString], { type: 'application/json' });
+                                const jsonUrl = URL.createObjectURL(jsonBlob);
+                                const link = document.createElement('a');
+                                link.setAttribute('href', jsonUrl);
+                                link.setAttribute('download', 'data.json');
+                                document.body.appendChild(link);
+                                link.click();
+                            },
+                            header: true
+                        });
+                    } catch (error) {
+                        console.error('Error parsing CSV:', error);
+                    }
+                };
+
+                reader.readAsText(file);
+            }
+        });
+
+        // Trigger the file input
+        input.click();
+    });
+
+    convertJSONButton.addEventListener('click', () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json';
@@ -37,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.click();
     });
 });
+
 
 
 // document.addEventListener('DOMContentLoaded', () => {
